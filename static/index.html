@@ -60,7 +60,7 @@ body.gopen #guia{transform:none}
 .eg div{flex:1;min-width:0}.eg b{display:block;font-size:13px}.eg small{color:var(--mu)}.eg .btn{padding:3px 10px;font-size:12px}
 code{background:var(--obs);padding:1px 6px;border-radius:5px;font-size:12.5px}
 </style></head><body>
-<header><div class="cubo"></div><div><h1>Space<span>-</span>Craft</h1><p>Mirá cómo cambia el cielo con los datos del telescopio SPHEREx de la NASA</p></div><button class="btn" id="gbtn">📘 Guía y ejemplos</button></header>
+<header><div class="cubo"></div><div><h1>Space<span>-</span>Craft</h1><p>Mirá cómo cambia el cielo con los datos del telescopio SPHEREx de la NASA</p></div><button class="btn" id="langbtn" type="button">🌐 English</button><button class="btn" id="gbtn">📘 Guía y ejemplos</button></header>
 <div id="wrap"><div id="map"><canvas id="bg" width="300" height="150"></canvas><canvas id="ln"></canvas><div id="ra"></div><div id="pins"></div></div></div>
 <div id="lg"></div>
 <p class="nota">Este ← → Oeste · Arriba = Norte · Banda violeta = Vía Láctea · Puntos naranjas = eclíptica (camino del Sol). Tocá un objeto del mapa o de la lista para abrir su ficha.</p>
@@ -120,6 +120,74 @@ code{background:var(--obs);padding:1px 6px;border-radius:5px;font-size:12.5px}
 <li><b>Sin imágenes:</b> probá otro detector o un campo más grande.</li></ul></details>
 </div></aside>
 <script>
+// Bilingual interface: Spanish is the default; the button switches the complete UI to English.
+const I18N={
+'Mirá cómo cambia el cielo con los datos del telescopio SPHEREx de la NASA':'See how the sky changes using data from NASA’s SPHEREx telescope',
+'📘 Guía y ejemplos':'📘 Guide & examples','Este ← → Oeste · Arriba = Norte · Banda violeta = Vía Láctea · Puntos naranjas = eclíptica (camino del Sol). Tocá un objeto del mapa o de la lista para abrir su ficha.':'This ← → West · Top = North · Purple band = Milky Way · Orange dots = ecliptic (the Sun’s path). Select an object on the map or in the list to open its details.',
+'Explorá el cielo':'Explore the sky','Escribí un nombre (ej: Barnard’s Star) o coordenadas, y mirá cómo cambia ese lugar entre 2025 y hoy. Puede tardar unos minutos. ¿Dudas? Abrí la guía.':'Enter a name (e.g. Barnard’s Star) or coordinates and see how that location changes between 2025 and today. This may take a few minutes. Questions? Open the guide.',
+'Nombre':'Name','Campo (arcmin, 3 a 20)':'Field of view (arcmin, 3 to 20)','Detector':'Detector','ID de Horizons (solo si se mueve)':'Horizons ID (moving objects only)','Modo diferencia':'Difference mode','Generar GIF':'Generate GIF','Descargar GIF':'Download GIF',
+'Los objetos con GIF muestran imágenes REALES de SPHEREx; los demás tienen una animación ILUSTRATIVA (movimientos exagerados). SPHEREx observa desde mayo de 2025.':'Objects with GIFs show REAL SPHEREx images; the others show an ILLUSTRATIVE animation (with exaggerated motion). SPHEREx has been observing since May 2025.',
+'GUÍA':'GUIDE','📘 Guía de Space-Craft':'📘 Space-Craft Guide','¿Qué es Space-Craft?':'What is Space-Craft?','SPHEREx es un telescopio espacial de la NASA que desde mayo de 2025 fotografía todo el cielo cada seis meses en 102 “colores” de luz infrarroja. Space-Craft te deja ver un pedacito del cielo en fotos tomadas en fechas distintas, como un videíto. Lo que se mueve entre fotos puede ser un asteroide, un cometa o una estrella cercana: así se descubrió Plutón.':'SPHEREx is a NASA space telescope that has photographed the entire sky every six months since May 2025 in 102 “colors” of infrared light. Space-Craft lets you view a small patch of sky in images taken on different dates, like a short video. An object that moves between images may be an asteroid, comet, or nearby star—this is how Pluto was discovered.',
+'Cómo usar el mapa (4 pasos)':'How to use the map (4 steps)','Mirá el mapa: cada ícono es un objeto del cielo.':'Look at the map: each icon represents an object in the sky.','Tocá un ícono o su etiqueta (o un nombre de la lista).':'Select an icon, its label, or a name in the list.','Se abre una ficha: qué es, a qué distancia está y qué buscar en el GIF.':'A detail card opens, showing what it is, how far away it is, and what to look for in the GIF.','Mirá el GIF o mové la barra para ir cuadro por cuadro. Con “Cargar en el explorador” podés generar tu propio GIF de ese lugar.':'Watch the GIF or move the slider to go frame by frame. Select “Load in explorer” to generate your own GIF for that location.',
+'Qué es cada cosa':'What everything means','Mapa del cielo':'Sky map','Todo el cielo “abierto” como un mapa plano. Arriba es el Norte y el Este está a la izquierda.':'The entire sky “unwrapped” into a flat map. North is at the top and East is on the left.','Ícono y etiqueta (callout)':'Icon and label (callout)','El ícono marca dónde está el objeto. La etiqueta con su nombre está unida por una línea cuando queda lejos.':'The icon marks the object’s location. A line connects it to its name label when the label is far away.','Colores / tipos':'Colors / types','Cada tipo de objeto tiene su color (leyenda debajo del mapa): estrella, enana marrón, variable, nebulosa, galaxia…':'Each object type has its own color (see the legend below the map): star, brown dwarf, variable star, nebula, galaxy…','RA (ascensión recta)':'RA (right ascension)','Como la longitud del cielo, de 0° a 360°. 1 hora = 15°.':'Like longitude on the sky, from 0° to 360°. 1 hour = 15°.','Dec (declinación)':'Dec (declination)','Como la latitud del cielo, de −90° (sur) a +90° (norte).':'Like latitude on the sky, from −90° (south) to +90° (north).','Campo (arcmin)':'Field of view (arcmin)','Qué tan grande es el recorte. 60 minutos de arco = 1 grado; la Luna mide unos 30. Más campo = más cosas, pero tarda más.':'The size of the selected sky area. 60 arcminutes = 1 degree; the Moon is about 30 arcminutes wide. A larger field shows more, but takes longer.','Detector (D1 a D6)':'Detector (D1 to D6)','SPHEREx tiene seis detectores y cada uno ve otro rango de colores infrarrojos. Por eso el brillo puede parpadear entre cuadros.':'SPHEREx has six detectors, each observing a different range of infrared colors. This is why brightness may flicker between frames.','Modo diferencia':'Difference mode','Resta lo que no cambia (las estrellas fijas) y deja a la vista lo que se mueve o cambia de brillo.':'Subtracts what does not change (fixed stars), revealing objects that move or change in brightness.','ID de Horizons':'Horizons ID','Solo para objetos que se mueven (planetas, asteroides, cometas): su número en la base de la NASA JPL Horizons, por ejemplo 433 para Eros.':'Only for moving objects (planets, asteroids, comets): their number in NASA’s JPL Horizons database, e.g. 433 for Eros.','Variable':'Variable star','Estrella cuyo brillo sube y baja con el tiempo.':'A star whose brightness increases and decreases over time.','Enana marrón':'Brown dwarf','Bola de gas muy fría: demasiado grande para ser planeta y demasiado chica para ser estrella.':'A very cool ball of gas: too large to be a planet and too small to be a star.','Eclíptica y Vía Láctea':'Ecliptic and Milky Way','Puntos naranjas: el camino aparente del Sol. Banda violeta: nuestra galaxia vista de canto.':'Orange dots: the Sun’s apparent path. Purple band: our galaxy seen edge-on.','GIF real / ilustrativo':'Real / illustrative GIF','Los GIF con fecha en cada cuadro son imágenes reales de SPHEREx. Los demás son animaciones de ejemplo, con movimientos exagerados.':'GIFs with dates on each frame are real SPHEREx images. The others are sample animations with exaggerated motion.',
+'Cómo usar “Explorá el cielo”':'How to use “Explore the sky”','Escribí un nombre (lo busca en SIMBAD)':'Enter a name (it will be searched in SIMBAD)','Elegí el campo (10 es un buen comienzo) y el detector.':'Choose the field of view (10 is a good starting point) and the detector.','Tocá':'Select','y esperá: se muestra el avance.':'and wait; progress will be displayed.','Probá el modo diferencia para ver qué cambia.':'Try difference mode to see what changes.','También funciona con enlaces:':'You can also use URL parameters:','Formatos:':'Formats:','Ejemplos de coordenadas':'Coordinate examples','Tocá “Cargar” y se completa el explorador.':'Select “Load” to fill in the explorer.','Cargar':'Load','Problemas frecuentes':'Common issues','Tarda mucho:':'It takes a long time:','es normal, baja datos de la NASA. Los pedidos repetidos salen al instante.':'This is normal; data is being downloaded from NASA. Repeated requests are served instantly.','“IRSA no responde”:':'“IRSA is not responding”:','el archivo de la NASA está fuera de servicio. Probá más tarde.':'The NASA archive is temporarily unavailable. Try again later.','No veo nada moverse:':'I cannot see anything moving:','casi todo en el cielo está quieto; por eso lo que se mueve se destaca.':'Almost everything in the sky is stationary, which makes moving objects stand out.','Sin imágenes:':'No images:','probá otro detector o un campo más grande.':'Try another detector or a larger field of view.',
+'Imágenes reales de SPHEREx, ordenadas por fecha. Cada cuadro se tomó en otra longitud de onda, por eso el brillo puede parpadear.':'Real SPHEREx images, arranged by date. Each frame was taken at a different wavelength, which is why brightness may flicker.','Animación ilustrativa, no son datos reales.':'Illustrative animation; these are not real data.','¿QUÉ ES?':'WHAT IS IT?','DISTANCIA':'DISTANCE','QUÉ BUSCAR':'WHAT TO LOOK FOR','COORDENADAS':'COORDINATES','Cargar en “Explorá el cielo”':'Load in “Explore the sky”','Enviando pedido...':'Submitting request...','Escribí un nombre, o RA y Dec.':'Enter a name, or RA and Dec.','Estrella':'Star','Enana marrón':'Brown dwarf','Estrella variable':'Variable star','Estrella con planetas / disco':'Star with planets / disk','Nebulosa / nube':'Nebula / cloud','Galaxia':'Galaxy','Campo profundo':'Deep field','ene':'Jan','feb':'Feb','mar':'Mar','abr':'Apr','may':'May','jun':'Jun','jul':'Jul','ago':'Aug','sep':'Sep','oct':'Oct','nov':'Nov','dic':'Dec',
+'La galaxia grande más cercana a la Vía Láctea, con cerca de un billón de estrellas. En infrarrojo se ve su núcleo y su polvo.':'The largest galaxy near the Milky Way, containing about one trillion stars. Its core and dust are visible in infrared.',
+'Un núcleo brillante rodeado de estrellas.':'A bright core surrounded by stars.',
+'Galaxia espiral que interactúa con una compañera más chica. Sus brazos tienen polvo y estrellas jóvenes.':'A spiral galaxy interacting with a smaller companion. Its arms contain dust and young stars.',
+'Los brazos espirales.':'The spiral arms.',
+'Allí hay un agujero negro supermasivo. El polvo tapa la luz visible, pero el infrarrojo lo atraviesa.':'A supermassive black hole lies there. Dust blocks visible light, but infrared light can pass through.',
+'Miles de estrellas muy apretadas.':'Thousands of densely packed stars.',
+'Restos de una supernova que astrónomos chinos vieron explotar en el año 1054.':'Remains of a supernova observed by Chinese astronomers in 1054.',
+'Filamentos de gas lanzados por la explosión.':'Gas filaments expelled by the explosion.',
+'Nebulosa planetaria: el gas que expulsó una estrella parecida al Sol al final de su vida.':'A planetary nebula: gas expelled by a Sun-like star at the end of its life.',
+'Un anillo con una estrella débil en el centro.':'A ring with a faint star at its center.',
+'Gigante roja que pulsa: su brillo sube y baja en ciclos de unos 11 meses (332 días).':'A pulsating red giant whose brightness rises and falls in cycles of about 11 months (332 days).',
+'Su brillo sube y baja con ritmo.':'Its brightness rises and falls in a regular cycle.',
+'SPHEREx pasa por los polos de la eclíptica una y otra vez: obtiene imágenes muy profundas con muchísimas galaxias lejanas.':'SPHEREx repeatedly scans the ecliptic poles, obtaining very deep images containing many distant galaxies.',
+'Galaxias débiles, casi todas fijas.':'Faint galaxies, almost all stationary.',
+'La estrella individual más cercana al Sol. Tiene el mayor movimiento propio conocido: ~10,4″ por año.':'The closest individual star to the Sun. It has the largest known proper motion: about 10.4 arcseconds per year.',
+'Buscá el punto que se corre entre cuadros.':'Look for the point that shifts between frames.',
+'El par de enanas marrones más cercano al Sol. Se mueve ~2,8″ por año.':'The closest pair of brown dwarfs to the Sun. They move about 2.8 arcseconds per year.',
+'Uno de los objetos más fríos conocidos, cerca de la temperatura del hielo. Se cree que tiene nubes de agua helada. Se mueve ~8″ por año.':'One of the coldest known objects, near the temperature of ice. It may have water-ice clouds and moves about 8 arcseconds per year.',
+'Muy débil y veloz.':'Very faint and fast-moving.',
+'Estrella joven con disco de polvo. Su brillo cae de golpe cada tanto; se cree que por polvo que pasa por delante.':'A young star with a dust disk. Its brightness occasionally drops sharply, possibly when dust passes in front of it.',
+'Brillo sin patrón fijo.':'Brightness changes without a fixed pattern.',
+'Gigante roja que pulsa: se hincha y se achica, y pierde masa. Su brillo sube y baja en ciclos de unos 8 meses.':'A pulsating red giant that expands, contracts, and loses mass. Its brightness rises and falls in cycles of about eight months.',
+'Enana ultrafría con siete planetas rocosos de tamaño parecido a la Tierra.':'An ultracool dwarf star with seven rocky planets roughly the size of Earth.',
+'Una estrellita débil y casi constante.':'A faint, nearly steady little star.',
+'Estrella joven rodeada por un disco de escombros y gas. Ya se descubrieron planetas gigantes en él.':'A young star surrounded by a disk of debris and gas. Giant planets have already been discovered in it.',
+'La franja de polvo que la atraviesa.':'The band of dust crossing it.',
+'La estrella más cercana al Sol. Enana roja con fulguraciones y un planeta en su zona habitable.':'The closest star to the Sun. A red dwarf with flares and a planet in its habitable zone.',
+'Destellos súbitos de brillo (fulguraciones).':'Sudden bursts of brightness (flares).',
+'Gran guardería de estrellas masivas. Tiene hielo de agua e hidrocarburos aromáticos.':'A vast stellar nursery for massive stars. It contains water ice and aromatic hydrocarbons.',
+'Nubes con mucho gas y polvo.':'Clouds rich in gas and dust.',
+'Nube con estrellas recién nacidas. Guarda hielo de agua y CO₂ que podría formar planetas.':'A cloud containing newborn stars. It holds water ice and CO₂ that could contribute to planet formation.',
+'Reserva de hielo para futuros planetas.':'An ice reservoir for future planets.',
+'Guardería estelar cercana. Se separa la luz de las estrellas jóvenes del resplandor del gas y el polvo.':'A nearby stellar nursery. The light from young stars can be distinguished from the glow of gas and dust.',
+'Estrellas jóvenes dentro de la nube.':'Young stars inside the cloud.',
+'Región de formación estelar en la Gran Nube de Magallanes, donde se distinguen estrellas individuales.':'A star-forming region in the Large Magellanic Cloud, where individual stars can be distinguished.',
+'Estrellas sueltas dentro de la nebulosa.':'Individual stars within the nebula.',
+'Galaxia satélite de la Vía Láctea. Se la cartografía completa en 102 colores infrarrojos.':'A satellite galaxy of the Milky Way, mapped in its entirety in 102 infrared colors.',
+'Una galaxia entera, vista en muchos colores.':'An entire galaxy, seen in many colors.'
+};
+let currentLanguage='es';
+const EN_TO_ES=Object.fromEntries(Object.entries(I18N).map(([es,en])=>[en,es]));
+const tr=value=>currentLanguage==='en'?(I18N[value]||value):(EN_TO_ES[value]||value);
+function applyLanguage(){
+ document.documentElement.lang=currentLanguage;
+ document.title=currentLanguage==='en'?'Space-Craft · SPHEREx sky map':'Space-Craft · Mapa del cielo con SPHEREx';
+ const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
+ while(node=walker.nextNode()){const original=node.nodeValue.trim();if(original&&(I18N[original]||EN_TO_ES[original]))node.nodeValue=node.nodeValue.replace(original,tr(original));}
+ document.querySelectorAll('[placeholder],[alt],[title]').forEach(el=>['placeholder','alt','title'].forEach(a=>{const v=el.getAttribute(a);if(v&&(I18N[v]||EN_TO_ES[v]))el.setAttribute(a,tr(v))}));
+ $('#langbtn').textContent=currentLanguage==='es'?'🌐 English':'🌐 Español';
+ // Rebuild labels generated from object data and category names.
+ O.forEach(o=>{if(o.pin)o.pin.title=tr(o[0]);if(o.tag)o.tag.textContent=o.id+' '+tr(o[1]);});
+ if($('#lst').children.length) [...$('#lst').children].forEach((el,i)=>{el.innerHTML='<i class="dot" style="background:'+T[O[i][2]][1]+'"></i>'+O[i].id+'. '+tr(O[i][0])});
+ $('#lg').innerHTML='';Object.values(T).forEach(v=>$('#lg').insertAdjacentHTML('beforeend','<span><i style="background:'+v[1]+'"></i>'+tr(v[0])+'</span>'));
+ if($('#card').style.display==='block'&&window.selectedObject)openCard(window.selectedObject);
+}
+$('#langbtn').addEventListener('click',()=>{currentLanguage=currentLanguage==='es'?'en':'es';applyLanguage()});
 const REAL_GIFS={"8":"gifs_pre/08.gif","10":"gifs_pre/10.gif","11":"gifs_pre/11.gif","12":"gifs_pre/12.gif","13":"gifs_pre/13.gif","14":"gifs_pre/14.gif","15":"gifs_pre/15.gif","16":"gifs_pre/16.gif","17":"gifs_pre/17.gif","18":"gifs_pre/18.gif","19":"gifs_pre/19.gif","20":"gifs_pre/20.gif"};
 const T={E:['Estrella','#fcee4b'],M:['Enana marrón','#f67b13'],V:['Estrella variable','#ff4a3d'],S:['Estrella con planetas / disco','#3be06b'],N:['Nebulosa / nube','#b98cf0'],G:['Galaxia','#5b8cff'],D:['Campo profundo','#4aedd9']};
 // nombre, corto, tipo, RA°, Dec°, distancia, qué es, qué buscar, animación, parámetros, campo (arcmin)
@@ -167,14 +235,14 @@ O.forEach((o,i)=>{o.id=i+1;o.t=o[2];const col=T[o.t][1];
 const p=document.createElement('button');p.className='pin';p.title=o[0];
 const cv=document.createElement('canvas');cv.width=cv.height=7;const cx=cv.getContext('2d');cx.fillStyle=col;
 SP[o.t].forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch=='x')cx.fillRect(x,y,1,1)}));p.appendChild(cv);
-const g=document.createElement('button');g.className='tag';g.style.setProperty('--c',col);g.textContent=o.id+' '+o[1];
+const g=document.createElement('button');g.className='tag';g.style.setProperty('--c',col);g.textContent=o.id+' '+tr(o[1]);
 o.pin=p;o.tag=g;[p,g].forEach(e=>{e.onclick=()=>openCard(o)});pins.append(p,g);
-const l=document.createElement('button');l.className='btn';l.innerHTML='<i class="dot" style="background:'+col+'"></i>'+o.id+'. '+o[0];l.onclick=()=>openCard(o);$('#lst').append(l);
+const l=document.createElement('button');l.className='btn';l.innerHTML='<i class="dot" style="background:'+col+'"></i>'+o.id+'. '+tr(o[0]);l.onclick=()=>openCard(o);$('#lst').append(l);
 const c=EQ[o.id]||[o[3],o[4]];
 $('#egs').insertAdjacentHTML('beforeend','<div class="eg"><div><b>'+o.id+'. '+o[0]+'</b><small>RA '+c[0]+' · Dec '+c[1]+' · campo '+o[10]+'</small></div><button class="btn" data-i="'+i+'">Cargar</button></div>')});
 $('#egs').onclick=e=>{const b=e.target.closest('button[data-i]');if(b)cargarObj(O[+b.dataset.i])};
 for(let h=2;h<=22;h+=2){const s=document.createElement('span');s.textContent=h+'h';s.style.left=(360-h*15)/360*100+'%';$('#ra').append(s)}
-Object.values(T).forEach(v=>{$('#lg').insertAdjacentHTML('beforeend','<span><i style="background:'+v[1]+'"></i>'+v[0]+'</span>')});
+Object.values(T).forEach(v=>{$('#lg').insertAdjacentHTML('beforeend','<span><i style="background:'+v[1]+'"></i>'+tr(v[0])+'</span>')});
 function layout(){const m=$('#map'),W=m.clientWidth,H=m.clientHeight,c=$('#ln');c.width=W;c.height=H;const x=c.getContext('2d');
 const R=[],dirs=[[1,0],[-1,0],[0,-1],[0,1],[1,-1],[-1,-1],[1,1],[-1,1]];
 O.forEach(o=>{o.px=(360-o[3])/360*W;o.py=(90-o[4])/180*H;o.pin.style.left=o.px+'px';o.pin.style.top=o.py+'px';R.push([o.px-11,o.py-11,22,22])});
@@ -187,7 +255,7 @@ o.tag.style.left=b[0]+'px';o.tag.style.top=b[1]+'px';R.push([b[0],b[1],w,h]);
 if(b[4]>14){x.beginPath();x.moveTo(o.px,o.py);x.lineTo(b[2],b[3]);x.stroke()}})}
 addEventListener('resize',layout);layout();if(document.fonts)document.fonts.ready.then(layout);
 const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-function fecha(f){const t=4+Math.round(18*f/(N-1));return MES[t%12]+' '+(2025+Math.floor(t/12))}
+function fecha(f){const t=4+Math.round(18*f/(N-1));return tr(MES[t%12])+' '+(2025+Math.floor(t/12))}
 function frame(o,f,x){const col=T[o.t][1],r=rng(o.id*977+13),a=o[8],p=o[9]||[],c=32,s=f-(N-1)/2;
 x.globalAlpha=1;x.fillStyle='#0d0b16';x.fillRect(0,0,64,64);
 for(let i=0;i<40;i++){const u=r()*64|0,v=r()*64|0,k=r();x.fillStyle=k>.8?'#fff':k>.4?'#b5b0c8':'#5a5470';x.fillRect(u,v,1,1)}
@@ -209,11 +277,11 @@ else{const n=p[0]||70;for(let i=0;i<n;i++){x.globalAlpha=.3+.5*r();x.fillStyle=r
 x.globalAlpha=1}
 let tm=null,fr=0,play=true;
 function clearSel(){O.forEach(e=>{e.pin.classList.remove('on');e.tag.classList.remove('on')})}
-function openCard(o){clearSel();o.pin.classList.add('on');o.tag.classList.add('on');
+function openCard(o){window.selectedObject=o;clearSel();o.pin.classList.add('on');o.tag.classList.add('on');
 const real=REAL_GIFS[o.id],ty=T[o.t],c=EQ[o.id]||[o[3],o[4]];
-$('#cb').innerHTML='<h2>'+o.id+'. '+o[0]+'</h2><span class="bd" style="background:'+ty[1]+'">'+ty[0]+'</span>'+
+$('#cb').innerHTML='<h2>'+o.id+'. '+tr(o[0])+'</h2><span class="bd" style="background:'+ty[1]+'">'+tr(ty[0])+'</span>'+ 
 (real?'<img id="rl" src="'+real+'" alt="GIF"><p class="ft">Imágenes reales de SPHEREx, ordenadas por fecha. Cada cuadro se tomó en otra longitud de onda, por eso el brillo puede parpadear.</p>':'<canvas id="cv" width="64" height="64"></canvas><div class="ct"><button id="pp" class="btn">❚❚</button><input id="sl" type="range" min="0" max="'+(N-1)+'" value="0"><span id="fd"></span></div><p class="ft">Animación ilustrativa, no son datos reales.</p>')+
-'<dl><dt>¿QUÉ ES?</dt><dd>'+o[6]+'</dd><dt>DISTANCIA</dt><dd>'+o[5]+'</dd><dt>QUÉ BUSCAR</dt><dd>'+o[7]+'</dd><dt>COORDENADAS</dt><dd>RA '+c[0]+'° · Dec '+c[1]+'° · campo '+o[10]+'′</dd></dl><button class="btn pri" id="cg">Cargar en “Explorá el cielo”</button>';
+'<dl><dt>'+tr('¿QUÉ ES?')+'</dt><dd>'+tr(o[6])+'</dd><dt>'+tr('DISTANCIA')+'</dt><dd>'+o[5]+'</dd><dt>'+tr('QUÉ BUSCAR')+'</dt><dd>'+tr(o[7])+'</dd><dt>'+tr('COORDENADAS')+'</dt><dd>RA '+c[0]+'° · Dec '+c[1]+'° · '+tr('Campo (arcmin, 3 a 20)')+' '+o[10]+'′</dd></dl><button class="btn pri" id="cg">'+tr('Cargar en “Explorá el cielo”')+'</button>';
 $('#bk').style.display=$('#card').style.display='block';clearInterval(tm);
 $('#cg').onclick=()=>cargarObj(o);
 if(!real){const x=$('#cv').getContext('2d'),sl=$('#sl');fr=0;play=true;
@@ -238,8 +306,8 @@ if(q.get('diff')=='1')$('#f_d').checked=true;
 let busy=false;
 async function go(){if(busy)return;const log=$('#f_log'),img=$('#f_img'),dl=$('#f_dl'),h=$('#f_h').value.trim();
 const p={nombre:$('#f_n').value.trim()||null,ra:$('#f_ra').value.trim()||null,dec:$('#f_dec').value.trim()||null,size:+$('#f_s').value||10,banda:'SPHEREx-'+$('#f_b').value,diff:$('#f_d').checked,horizons:h||null,tipo:/^[1-9]99$/.test(h)?'majorbody':(/^[A-Z]\/\d{4}/.test(h)?'designation':'smallbody')};
-if(!(p.nombre||(p.ra&&p.dec)||p.horizons)){alert('Escribí un nombre, o RA y Dec.');return}
-busy=true;$('#f_go').disabled=true;img.hidden=dl.hidden=true;log.style.display='block';log.textContent='Enviando pedido...';
+if(!(p.nombre||(p.ra&&p.dec)||p.horizons)){alert(tr('Escribí un nombre, o RA y Dec.'));return}
+busy=true;$('#f_go').disabled=true;img.hidden=dl.hidden=true;log.style.display='block';log.textContent=tr('Enviando pedido...');
 try{const r=await fetch(API+'/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
 const j=await r.json();if(!r.ok)throw new Error(j.detail||'Error '+r.status);
 for(;;){await new Promise(z=>setTimeout(z,3000));const s=await (await fetch(API+'/api/jobs/'+j.id)).json();
