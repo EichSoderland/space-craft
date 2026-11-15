@@ -122,6 +122,63 @@ code{background:var(--obs);padding:1px 6px;border-radius:5px;font-size:12.5px}
 <script>
 // Bilingual interface: Spanish is the default; the button switches the complete UI to English.
 const I18N={
+'Galaxia de Andrómeda (M31)':'Andromeda Galaxy (M31)',
+'Andrómeda':'Andromeda',
+'2,5 millones de años luz':'2.5 million light-years',
+'Galaxia del Remolino (M51)':'Whirlpool Galaxy (M51)',
+'Remolino M51':'Whirlpool M51',
+'~25 millones de años luz':'~25 million light-years',
+'Centro de la Vía Láctea':'Milky Way Center',
+'Centro Galáctico':'Galactic Center',
+'26 000 años luz':'26,000 light-years',
+'Nebulosa del Cangrejo (M1)':'Crab Nebula (M1)',
+'Cangrejo M1':'Crab M1',
+'6 500 años luz':'6,500 light-years',
+'Nebulosa del Anillo (M57)':'Ring Nebula (M57)',
+'Anillo M57':'Ring M57',
+'2 300 años luz':'2,300 light-years',
+'Mira (ómicron Ceti)':'Mira (omicron Ceti)',
+'~300 años luz':'~300 light-years',
+'Polo norte de la eclíptica':'North ecliptic pole',
+'Polo N eclíptico':'N ecliptic pole',
+'Estrella de Barnard':'Barnard’s Star',
+'Barnard':'Barnard',
+'6 años luz':'6 light-years',
+'6,5 años luz':'6.5 light-years',
+'Un puntito que se corre entre cuadros.':'A tiny dot that shifts between frames.',
+'7 años luz':'7 light-years',
+'~450 años luz':'~450 light-years',
+'Brillo que sube y baja con ritmo.':'Brightness that rises and falls in a regular cycle.',
+'40 años luz':'40 light-years',
+'63 años luz':'63 light-years',
+'Próxima Centauri':'Proxima Centauri',
+'Próxima':'Proxima',
+'4,2 años luz':'4.2 light-years',
+'Región de Cygnus X':'Cygnus X region',
+'~4 600 años luz':'~4,600 light-years',
+'Nube de Rho Ophiuchi':'Rho Ophiuchi Cloud',
+'~400 años luz':'~400 light-years',
+'Nebulosa de Orión (M42)':'Orion Nebula (M42)',
+'Orión M42':'Orion M42',
+'1 350 años luz':'1,350 light-years',
+'Nebulosa NGC 1760':'NGC 1760 Nebula',
+'160 000 años luz':'160,000 light-years',
+'Gran Nube de Magallanes':'Large Magellanic Cloud',
+'Gran Nube':'Large Cloud',
+'campo':'field',
+'Cargar':'Load',
+'ene':'Jan',
+'feb':'Feb',
+'mar':'Mar',
+'abr':'Apr',
+'may':'May',
+'jun':'Jun',
+'jul':'Jul',
+'ago':'Aug',
+'sep':'Sep',
+'oct':'Oct',
+'nov':'Nov',
+'dic':'Dec',
 'Mirá cómo cambia el cielo con los datos del telescopio SPHEREx de la NASA':'See how the sky changes using data from NASA’s SPHEREx telescope',
 '📘 Guía y ejemplos':'📘 Guide & examples','Este ← → Oeste · Arriba = Norte · Banda violeta = Vía Láctea · Puntos naranjas = eclíptica (camino del Sol). Tocá un objeto del mapa o de la lista para abrir su ficha.':'This ← → West · Top = North · Purple band = Milky Way · Orange dots = ecliptic (the Sun’s path). Select an object on the map or in the list to open its details.',
 'Explorá el cielo':'Explore the sky','Escribí un nombre (ej: Barnard’s Star) o coordenadas, y mirá cómo cambia ese lugar entre 2025 y hoy. Puede tardar unos minutos. ¿Dudas? Abrí la guía.':'Enter a name (e.g. Barnard’s Star) or coordinates and see how that location changes between 2025 and today. This may take a few minutes. Questions? Open the guide.',
@@ -185,9 +242,9 @@ function applyLanguage(){
  O.forEach(o=>{if(o.pin)o.pin.title=tr(o[0]);if(o.tag)o.tag.textContent=o.id+' '+tr(o[1]);});
  if($('#lst').children.length) [...$('#lst').children].forEach((el,i)=>{el.innerHTML='<i class="dot" style="background:'+T[O[i][2]][1]+'"></i>'+O[i].id+'. '+tr(O[i][0])});
  $('#lg').innerHTML='';Object.values(T).forEach(v=>$('#lg').insertAdjacentHTML('beforeend','<span><i style="background:'+v[1]+'"></i>'+tr(v[0])+'</span>'));
+ document.querySelectorAll('#egs .eg').forEach((el,i)=>{const o=O[i],c=EQ[o.id]||[o[3],o[4]];el.querySelector('b').textContent=o.id+'. '+tr(o[0]);el.querySelector('small').textContent='RA '+c[0]+' · Dec '+c[1]+' · '+tr('campo')+' '+o[10];el.querySelector('button').textContent=tr('Cargar')});
  if($('#card').style.display==='block'&&window.selectedObject)openCard(window.selectedObject);
 }
-$('#langbtn').addEventListener('click',()=>{currentLanguage=currentLanguage==='es'?'en':'es';applyLanguage()});
 const REAL_GIFS={"8":"gifs_pre/08.gif","10":"gifs_pre/10.gif","11":"gifs_pre/11.gif","12":"gifs_pre/12.gif","13":"gifs_pre/13.gif","14":"gifs_pre/14.gif","15":"gifs_pre/15.gif","16":"gifs_pre/16.gif","17":"gifs_pre/17.gif","18":"gifs_pre/18.gif","19":"gifs_pre/19.gif","20":"gifs_pre/20.gif"};
 const T={E:['Estrella','#fcee4b'],M:['Enana marrón','#f67b13'],V:['Estrella variable','#ff4a3d'],S:['Estrella con planetas / disco','#3be06b'],N:['Nebulosa / nube','#b98cf0'],G:['Galaxia','#5b8cff'],D:['Campo profundo','#4aedd9']};
 // nombre, corto, tipo, RA°, Dec°, distancia, qué es, qué buscar, animación, parámetros, campo (arcmin)
@@ -280,8 +337,8 @@ function clearSel(){O.forEach(e=>{e.pin.classList.remove('on');e.tag.classList.r
 function openCard(o){window.selectedObject=o;clearSel();o.pin.classList.add('on');o.tag.classList.add('on');
 const real=REAL_GIFS[o.id],ty=T[o.t],c=EQ[o.id]||[o[3],o[4]];
 $('#cb').innerHTML='<h2>'+o.id+'. '+tr(o[0])+'</h2><span class="bd" style="background:'+ty[1]+'">'+tr(ty[0])+'</span>'+ 
-(real?'<img id="rl" src="'+real+'" alt="GIF"><p class="ft">Imágenes reales de SPHEREx, ordenadas por fecha. Cada cuadro se tomó en otra longitud de onda, por eso el brillo puede parpadear.</p>':'<canvas id="cv" width="64" height="64"></canvas><div class="ct"><button id="pp" class="btn">❚❚</button><input id="sl" type="range" min="0" max="'+(N-1)+'" value="0"><span id="fd"></span></div><p class="ft">Animación ilustrativa, no son datos reales.</p>')+
-'<dl><dt>'+tr('¿QUÉ ES?')+'</dt><dd>'+tr(o[6])+'</dd><dt>'+tr('DISTANCIA')+'</dt><dd>'+o[5]+'</dd><dt>'+tr('QUÉ BUSCAR')+'</dt><dd>'+tr(o[7])+'</dd><dt>'+tr('COORDENADAS')+'</dt><dd>RA '+c[0]+'° · Dec '+c[1]+'° · '+tr('Campo (arcmin, 3 a 20)')+' '+o[10]+'′</dd></dl><button class="btn pri" id="cg">'+tr('Cargar en “Explorá el cielo”')+'</button>';
+(real?'<img id="rl" src="'+real+'" alt="GIF"><p class="ft">'+tr('Imágenes reales de SPHEREx, ordenadas por fecha. Cada cuadro se tomó en otra longitud de onda, por eso el brillo puede parpadear.')+'</p>':'<canvas id="cv" width="64" height="64"></canvas><div class="ct"><button id="pp" class="btn">❚❚</button><input id="sl" type="range" min="0" max="'+(N-1)+'" value="0"><span id="fd"></span></div><p class="ft">'+tr('Animación ilustrativa, no son datos reales.')+'</p>')+
+'<dl><dt>'+tr('¿QUÉ ES?')+'</dt><dd>'+tr(o[6])+'</dd><dt>'+tr('DISTANCIA')+'</dt><dd>'+tr(o[5])+'</dd><dt>'+tr('QUÉ BUSCAR')+'</dt><dd>'+tr(o[7])+'</dd><dt>'+tr('COORDENADAS')+'</dt><dd>RA '+c[0]+'° · Dec '+c[1]+'° · '+tr('Campo (arcmin, 3 a 20)')+' '+o[10]+'′</dd></dl><button class="btn pri" id="cg">'+tr('Cargar en “Explorá el cielo”')+'</button>';
 $('#bk').style.display=$('#card').style.display='block';clearInterval(tm);
 $('#cg').onclick=()=>cargarObj(o);
 if(!real){const x=$('#cv').getContext('2d'),sl=$('#sl');fr=0;play=true;
@@ -318,4 +375,5 @@ catch(e){log.textContent='ERROR: '+e.message}
 busy=false;$('#f_go').disabled=false}
 $('#f_go').onclick=go;
 if(q.get('nombre')||q.get('ra')||q.get('horizons'))go();
+$('#langbtn').addEventListener('click',()=>{currentLanguage=currentLanguage==='es'?'en':'es';applyLanguage()});
 </script></body></html>
