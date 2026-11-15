@@ -93,18 +93,30 @@ def consultar_tap(query, timeout=420, intentos=2):
 COLECCIONES = ["spherex_dr1", "spherex_qr3", "spherex_dr1_deep", "spherex_qr3_deep"]
 
 
-def consultar_sia(coord, radio, tiempo=None, intentos=3):
-    """Busca imagenes con SIA2 (servicio liviano de IRSA, no usa la cola de TAP)."""
+def consultar_sia(coord, radio, tiempo=None, intentos=2):
+    """Busca imagenes con SIA2, UNA consulta por coleccion: si IRSA falla (502) en una,
+    las demas siguen funcionando. Devuelve una lista de filas."""
     from astroquery.ipac.irsa import Irsa
-    ultimo = None
-    for i in range(intentos):
-        try:
-            kw = {"time": tiempo} if tiempo is not None else {}
-            return Irsa.query_sia(pos=(coord, radio), collection=COLECCIONES, **kw)
-        except Exception as e:
-            ultimo = e
-            time.sleep(3 * (i + 1))
-    raise ultimo
+    filas, errores = [], []
+    for col in COLECCIONES:
+        ultimo, ok = None, False
+        for i in range(intentos):
+            try:
+                kw = {"time": tiempo} if tiempo is not None else {}
+                t = Irsa.query_sia(pos=(coord, radio), collection=col, **kw)
+                filas.extend(list(t))
+                ok = True
+                break
+            except Exception as e:
+                ultimo = e
+                time.sleep(2 * (i + 1))
+        if not ok:
+            errores.append(f"{col}: {type(ultimo).__name__}")
+    if errores:
+        print("  (colecciones con error: " + "; ".join(errores) + ")")
+    if len(errores) == len(COLECCIONES):
+        raise RuntimeError("IRSA no respondio en ninguna coleccion (" + errores[0] + ")")
+    return filas
 
 
 def filas_sia(tabla, det, ra, dec, size_deg, centro=None, tmin=None, tmax=None):

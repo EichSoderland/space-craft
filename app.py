@@ -172,6 +172,37 @@ def salud():
     return {"ok": True}
 
 
+_DIAG = {"t": 0, "res": None}
+
+
+@app.get("/api/diagnostico")
+def diagnostico():
+    """Prueba la conexion de ESTE servidor con IRSA (resultado en cache 60 s)."""
+    if time.time() - _DIAG["t"] < 60 and _DIAG["res"]:
+        return _DIAG["res"]
+    import requests
+    from astropy import units as u
+    from astropy.coordinates import SkyCoord
+    from astroquery.ipac.irsa import Irsa
+    res = {}
+    t0 = time.time()
+    try:
+        r = requests.get("https://irsa.ipac.caltech.edu/TAP/capabilities", timeout=20)
+        res["TAP_capabilities"] = {"status": r.status_code, "seg": round(time.time() - t0, 1)}
+    except Exception as e:
+        res["TAP_capabilities"] = {"error": f"{type(e).__name__}: {e}"[:200]}
+    c = SkyCoord(269.45 * u.deg, 4.69 * u.deg)
+    for col in sv.COLECCIONES:
+        t0 = time.time()
+        try:
+            t = Irsa.query_sia(pos=(c, 1 * u.arcsec), collection=col)
+            res[col] = {"filas": len(t), "seg": round(time.time() - t0, 1)}
+        except Exception as e:
+            res[col] = {"error": f"{type(e).__name__}: {e}"[:160], "seg": round(time.time() - t0, 1)}
+    _DIAG["t"], _DIAG["res"] = time.time(), res
+    return res
+
+
 @app.get("/")
 def inicio():
     return FileResponse(os.path.join(BASE, "static", "index.html"))
