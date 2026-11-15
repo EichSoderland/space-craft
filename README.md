@@ -1,8 +1,8 @@
-# SPHEREx · Mapa del cielo y explorador
+# Space-Craft · Mapa del cielo con SPHEREx
 
 Web con dos partes:
 
-1. **Mapa del cielo** (estilo Minecraft) con 20 objetos y su ficha. Los que tienen GIF muestran
+1. **Mapa del cielo** (paleta Minecraft) con 20 objetos y su ficha, y una **guía colapsable** a la derecha con tutorial, glosario y ejemplos de coordenadas. Los que tienen GIF muestran
    imágenes reales de SPHEREx (`static/gifs_pre/`); el resto, una animación ilustrativa.
 2. **Explorá el cielo**: se escribe un nombre o coordenadas (RA/Dec) y el servidor busca las
    imágenes en IRSA, baja un recorte chico de cada una, las alinea y devuelve un GIF.
@@ -66,8 +66,8 @@ Campo máximo 20 arcmin, 30 cuadros, `MAX_IMGS` imágenes por pedido, `WORKERS` 
 y 8 en cola. Los pedidos repetidos salen al instante (caché).
 
 ## Pendientes conocidos
-- Falta el GIF del objeto 9 (Épsilon Indi B): el recorte original quedó centrado en la estrella A.
-  Y los objetos 1 al 7 (Sistema Solar) todavía no tienen GIF real.
+- Los objetos 1 al 7 y el 9 son nuevos y todavía no tienen GIF real (se ven con animación ilustrativa).
+  Generalos desde el explorador de la propia web (o con Colab) y guardalos como `static/gifs_pre/NN.gif`.
 - Los GIFs 8 (Barnard) y 15 (Próxima) conviene rehacerlos con las coordenadas corregidas por
   movimiento propio.
 - Para sumar un GIF al mapa: copialo como `static/gifs_pre/NN.gif` y agregá su línea en

@@ -38,16 +38,15 @@ import spherex_video as sv
 
 # n°, nombre, RA, Dec (None = se mueve), campo en arcmin, identificadores de Horizons
 OBJETOS = [
-    (1, "Urano", None, None, 10, [("799", "majorbody")]),
-    (2, "Neptuno", None, None, 10, [("899", "majorbody")]),
-    (3, "Pluton", None, None, 10, [("999", "majorbody")]),
-    (4, "Cometa 3I/ATLAS", None, None, 10,
-     [("C/2025 N1", "designation"), ("C/2025 N1", "smallbody"), ("3I", "smallbody")]),
-    (5, "Eros", None, None, 10, [("433", "smallbody")]),
-    (6, "Bennu", None, None, 10, [("101955", "smallbody")]),
-    (7, "Ceres", None, None, 10, [("1", "smallbody")]),
+    (1, "Andromeda M31", 10.685, 41.269, 20, None),
+    (2, "Remolino M51", 202.470, 47.195, 10, None),
+    (3, "Centro de la Via Lactea", 266.417, -29.008, 10, None),
+    (4, "Nebulosa del Cangrejo M1", 83.633, 22.014, 10, None),
+    (5, "Nebulosa del Anillo M57", 283.396, 33.029, 10, None),
+    (6, "Mira", 34.837, -2.978, 10, None),
+    (7, "Polo norte ecliptico", 270.0, 66.561, 15, None),
     (8, "Estrella de Barnard", 269.45, 4.69, 10, None),
-    (9, "Epsilon Indi B", 331.04, -56.78, 10, None),
+    (9, "Luhman 16", 162.328, -53.319, 10, None),
     (10, "WISE 0855", 133.80, -7.25, 15, None),
     (11, "RW Aurigae", 76.96, 30.40, 10, None),
     (12, "R Draconis", 248.18, 66.76, 10, None),
@@ -64,7 +63,6 @@ OBJETOS = [
 # la epoca J2000: las estrellas veloces se corrieron desde entonces y hay que "ponerlas
 # al dia" para que queden en el centro del recorte.
 PM = {8: (-802.8, 10362.5),    # Estrella de Barnard
-      9: (3960.0, -2540.0),    # Epsilon Indi (A y B se mueven juntas)
       15: (-3781.0, 770.0)}    # Proxima Centauri
 EPOCA_OBS = 2026.1             # mitad aproximada del periodo de observacion de SPHEREx
 

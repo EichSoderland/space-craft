@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: spherex-explorer
+    name: space-craft
     runtime: docker
     plan: free
     healthCheckPath: /api/salud

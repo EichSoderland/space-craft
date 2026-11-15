@@ -92,7 +92,7 @@ sys.stdout = _router
 
 JOBS = {}
 EJECUTOR = ThreadPoolExecutor(max_workers=WORKERS)
-app = FastAPI(title="SPHEREx Sky Explorer")
+app = FastAPI(title="Space-Craft")
 # Permite que una pagina alojada en OTRO sitio (por ej. Vercel) use esta API.
 # En produccion conviene limitarlo: ALLOW_ORIGINS="https://mi-sitio.vercel.app"
 app.add_middleware(CORSMiddleware,
@@ -125,7 +125,12 @@ def _trabajar(jid, p, clave):
         job["url"] = "/cache/" + os.path.basename(ruta)
         job["estado"] = "listo"
     except Exception as e:
-        job["error"] = f"{type(e).__name__}: {e}"
+        txt = f"{type(e).__name__}: {e}"
+        if any(k in txt for k in ("502", "503", "504", "Proxy Error", "no respondio", "Timeout")):
+            txt = ("El archivo de datos de SPHEREx (IRSA) no esta respondiendo en este momento. "
+                   "No es un problema de tu pedido: proba de nuevo en unos minutos. "
+                   "(Detalle tecnico: " + txt[:150] + ")")
+        job["error"] = txt
         job["estado"] = "error"
     finally:
         _router.local.reg = None
