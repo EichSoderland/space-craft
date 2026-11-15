@@ -1,108 +1,159 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>SPHEREx · Mapa del cielo</title>
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Space-Craft · Mapa del cielo con SPHEREx</title>
 <meta name="api-base" content="">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
 <style>
-:root{--obs:#0d0b16;--st:#c6c6c6;--dk:#373737;--gold:#fcee4b;--dia:#4aedd9;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:#171226;color:#e6e2f5;font:15px/1.4 'Pixelify Sans',ui-monospace,monospace}
-header{background:linear-gradient(#5db33a 0 10px,#3f8a24 10px 14px,#866043 14px);padding:22px 14px 10px;border-bottom:4px solid #000}
-h1{font-size:26px;margin:0;color:#fff;text-shadow:3px 3px 0 #333}
-header p{margin:2px 0;color:#fff;text-shadow:2px 2px 0 #333}
-button{font:inherit;cursor:pointer;border:0}
-.mb{background:#7c7c7c;color:#fff;text-shadow:2px 2px 0 #3e3e3e;box-shadow:inset 3px 3px 0 #b0b0b0,inset -3px -3px 0 #4a4a4a,0 0 0 3px #000}
-.mb:hover,.mb.on{background:#6f7fd1}
-#wrap{overflow-x:auto;margin:16px 8px;padding:4px}
-#map{position:relative;width:max(100%,1200px);aspect-ratio:2/1;background:var(--obs);box-shadow:0 0 0 4px #000,0 0 0 8px #5b5b5b}
-#map canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+:root{--bg:#14101f;--obs:#0d0b16;--pn:#1e1830;--pn2:#2a2243;--bd:#3d3459;--tx:#ece8fa;--mu:#a9a3c8;--gold:#fcee4b;--dia:#4aedd9;--grass:#5db33a;--dirt:#866043;color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;transition:margin-right .25s}
+@media(min-width:1100px){body.gopen{margin-right:410px}}
+button,input,select{font:inherit}
+.btn{background:var(--pn2);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:7px 14px;cursor:pointer}
+.btn:hover{border-color:var(--gold)}.btn.pri{background:var(--grass);color:#0b1a05;border-color:#3f8a24;font-weight:700}
+header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-top:8px solid;border-image:linear-gradient(90deg,var(--grass),var(--dirt)) 1;background:var(--pn)}
+.cubo{width:34px;height:34px;border-radius:6px;background:linear-gradient(var(--grass) 0 34%,var(--dirt) 34%);box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}
+h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.5px}h1 span{color:var(--gold)}
+header p{margin:0;color:var(--mu);font-size:14px}header .btn{margin-left:auto}
+#wrap{overflow-x:auto;margin:16px 20px;border-radius:12px;border:1px solid var(--bd)}
+#map{position:relative;width:max(100%,1200px);aspect-ratio:2/1;background:var(--obs)}
+#map canvas{position:absolute;inset:0;width:100%;height:100%}
+#bg{image-rendering:pixelated}
 #ra{position:absolute;top:3px;left:0;right:0;pointer-events:none}
-#ra span{position:absolute;font-size:12px;color:#8e88a8;transform:translateX(-50%)}
-.pin{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;background:none;padding:0;z-index:3}
-#map .pin canvas{position:static;width:16px;height:16px;filter:drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000)}
-.pin.mv{outline:2px dotted var(--gold)}
-.pin.on{outline:3px dashed var(--dia)}
-.tag{position:absolute;z-index:2;font-size:14px;padding:1px 6px;white-space:nowrap;background:#b08850;color:#000;box-shadow:inset 2px 2px 0 #d2ae78,inset -2px -2px 0 #6e4f26,0 0 0 2px #000}
-.tag:hover,.tag.on{background:var(--gold)}
-#lg{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 12px;font-size:13px}
-#lg i{display:inline-block;width:11px;height:11px;margin-right:5px;box-shadow:0 0 0 2px #000}
-#lst{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:14px 12px}
-#lst button{padding:5px 8px;text-align:left;font-size:14px}
-#card{position:fixed;right:12px;top:12px;width:min(410px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;z-index:20;padding:16px;display:none;background:var(--st);color:var(--dk);box-shadow:inset 4px 4px 0 #fff,inset -4px -4px 0 #555,0 0 0 4px #000}
-#card h2{font-size:21px;margin:0 36px 8px 0}
-#x{position:absolute;right:10px;top:10px;padding:2px 10px;background:#c33;color:#fff;box-shadow:inset 2px 2px 0 #f66,inset -2px -2px 0 #811,0 0 0 2px #000}
-.bd{display:inline-block;padding:1px 8px;color:#000;box-shadow:0 0 0 2px #000;font-weight:700}
-#cv,#rl{display:block;width:256px;height:256px;margin:14px auto;image-rendering:pixelated;box-shadow:0 0 0 4px #000}
-.ct{display:flex;gap:8px;align-items:center;justify-content:center}
-.ct button{padding:2px 12px}.ct input{flex:1}
-#card dt{color:#2d6a14;font-weight:700;margin-top:8px}#card dd{margin:0}
-.ft{font-size:13px;margin:8px 12px;color:#a9a3c8}#card .ft{margin:4px 0;color:#555}
-
-#ex{margin:18px 12px;padding:16px;background:var(--st);color:var(--dk);box-shadow:inset 4px 4px 0 #fff,inset -4px -4px 0 #555,0 0 0 4px #000}
-#ex h2{margin:0 0 6px;font-size:22px}#ex p{color:#444;margin:4px 0}
-.fm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:12px 0}
-.fm label{display:flex;flex-direction:column;font-weight:700;font-size:14px}
-.fm input,.fm select{font:inherit;padding:6px;background:#222;color:#fff;border:0;box-shadow:inset 3px 3px 0 #000,0 0 0 2px #777}
+#ra span{position:absolute;font-size:11px;color:#8e88a8;transform:translateX(-50%)}
+.pin{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;background:none;border:0;padding:0;z-index:3;cursor:pointer;border-radius:50%}
+#map .pin canvas{position:static;width:16px;height:16px;image-rendering:pixelated;filter:drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000)}
+.pin.on{outline:2px solid var(--dia);outline-offset:1px}
+.tag{position:absolute;z-index:2;font-size:12.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:rgba(20,16,31,.9);color:#fff;border:1.5px solid var(--c);white-space:nowrap;cursor:pointer}
+.tag:hover,.tag.on{background:var(--c);color:#000}
+.nota{margin:8px 20px;font-size:13px;color:var(--mu)}
+#lg{display:flex;flex-wrap:wrap;gap:6px 16px;margin:8px 20px;font-size:13px}
+#lg i,.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+#lst{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:12px 20px}
+#lst .btn{text-align:left;font-size:14px}
+#bk{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50}
+#card{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(480px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;background:var(--pn);border:1px solid var(--bd);border-radius:14px;padding:18px;z-index:51;display:none}
+#card h2{margin:0 34px 8px 0;font-size:20px}
+#x{position:absolute;right:12px;top:12px;width:30px;height:30px;padding:0;border-radius:50%}
+.bd{display:inline-block;padding:1px 10px;border-radius:999px;color:#000;font-weight:700;font-size:13px}
+#cv,#rl{display:block;width:min(320px,100%);aspect-ratio:1;margin:14px auto;border-radius:10px;border:1px solid var(--bd);background:#000}
+.ct{display:flex;gap:8px;align-items:center;justify-content:center}.ct input{flex:1}
+#card dt{color:var(--dia);font-weight:700;margin-top:10px;font-size:12px;letter-spacing:.06em}#card dd{margin:0}
+.ft{font-size:12.5px;color:var(--mu);margin:6px 0}
+#ex{margin:20px;padding:18px;background:var(--pn);border:1px solid var(--bd);border-radius:14px}
+#ex h2{margin:0 0 4px;font-size:20px}#ex p{margin:4px 0;color:var(--mu)}
+.fm{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0}
+.fm label{display:flex;flex-direction:column;font-weight:600;font-size:13px;gap:4px}
+.fm input,.fm select{padding:8px;background:var(--obs);color:var(--tx);border:1px solid var(--bd);border-radius:8px}
 .fm .ck{flex-direction:row;align-items:center;gap:8px}.fm .ck input{width:auto}
-#f_go{padding:8px 22px;font-size:18px}
-#f_log{background:#111;color:#9f9;padding:8px;font-size:13px;max-height:150px;overflow:auto;white-space:pre-wrap;display:none}
-#f_img{display:block;max-width:100%;width:420px;margin:12px auto;image-rendering:pixelated;box-shadow:0 0 0 4px #000}
-#f_dl{display:inline-block;margin:4px;padding:4px 12px}
+#f_go{padding:10px 26px;font-size:16px}
+#f_log{background:#0a0812;color:#9fe0a0;padding:10px;font-size:12.5px;max-height:160px;overflow:auto;white-space:pre-wrap;display:none;border-radius:8px}
+#f_img{display:block;max-width:100%;width:420px;margin:14px auto;border-radius:10px;border:1px solid var(--bd)}
+#gtab{position:fixed;right:0;top:38%;z-index:39;writing-mode:vertical-rl;padding:14px 8px;border-radius:10px 0 0 10px;background:var(--grass);color:#0b1a05;font-weight:800;border:0;cursor:pointer}
+body.gopen #gtab{display:none}
+#guia{position:fixed;top:0;right:0;height:100%;width:410px;max-width:92vw;background:var(--pn);border-left:1px solid var(--bd);transform:translateX(100%);transition:transform .25s;z-index:40;display:flex;flex-direction:column}
+body.gopen #guia{transform:none}
+#gh{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--bd);font-weight:800;font-size:17px;gap:8px}#gh .btn{margin-left:auto;padding:3px 11px}
+#gb{overflow:auto;padding:6px 16px 30px;font-size:14px}
+#gb details{border-bottom:1px solid var(--bd);padding:10px 0}#gb summary{cursor:pointer;font-weight:700;color:var(--gold)}
+#gb p,#gb li{color:#d8d3ee}#gb ol,#gb ul{padding-left:20px;margin:6px 0}#gb dt{font-weight:700;color:var(--dia);margin-top:8px}#gb dd{margin:0;color:#d8d3ee}
+.eg{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--bd);font-size:13px}
+.eg div{flex:1;min-width:0}.eg b{display:block;font-size:13px}.eg small{color:var(--mu)}.eg .btn{padding:3px 10px;font-size:12px}
+code{background:var(--obs);padding:1px 6px;border-radius:5px;font-size:12.5px}
 </style></head><body>
-<header><h1>SPHEREx · MAPA DEL CIELO</h1><p>Tocá un objeto para abrir su ficha y ver cómo cambia con el tiempo.</p></header>
+<header><div class="cubo"></div><div><h1>Space<span>-</span>Craft</h1><p>Mirá cómo cambia el cielo con los datos del telescopio SPHEREx de la NASA</p></div><button class="btn" id="gbtn">📘 Guía y ejemplos</button></header>
 <div id="wrap"><div id="map"><canvas id="bg" width="300" height="150"></canvas><canvas id="ln"></canvas><div id="ra"></div><div id="pins"></div></div></div>
 <div id="lg"></div>
-<p class="ft">Este ← → Oeste · Arriba = Norte · Banda violeta = Vía Láctea · Puntos naranjas = eclíptica (camino del Sol). Los objetos con borde punteado dorado SE MUEVEN por el cielo: su lugar en el mapa es solo ilustrativo.</p>
+<p class="nota">Este ← → Oeste · Arriba = Norte · Banda violeta = Vía Láctea · Puntos naranjas = eclíptica (camino del Sol). Tocá un objeto del mapa o de la lista para abrir su ficha.</p>
 <div id="lst"></div>
-<section id="ex"><h2>EXPLORÁ EL CIELO</h2>
-<p>Escribí un nombre (ej: Barnard’s Star) o coordenadas, y mirá cómo cambia ese lugar del cielo en las imágenes de SPHEREx. Puede tardar unos minutos.</p>
+<section id="ex"><h2>Explorá el cielo</h2>
+<p>Escribí un nombre (ej: Barnard’s Star) o coordenadas, y mirá cómo cambia ese lugar entre 2025 y hoy. Puede tardar unos minutos. ¿Dudas? Abrí la guía.</p>
 <div class="fm">
 <label>Nombre<input id="f_n" placeholder="Barnard’s Star"></label>
-<label>RA (° o 17h57m48s)<input id="f_ra" placeholder="269.45"></label>
-<label>Dec (° o +04d41m36s)<input id="f_dec" placeholder="4.69"></label>
+<label>RA (° o 17h57m48s)<input id="f_ra" placeholder="269.44"></label>
+<label>Dec (° o +04d41m36s)<input id="f_dec" placeholder="4.77"></label>
 <label>Campo (arcmin, 3 a 20)<input id="f_s" type="number" min="3" max="20" value="10"></label>
 <label>Detector<select id="f_b"><option>D1</option><option selected>D2</option><option>D3</option><option>D4</option><option>D5</option><option>D6</option></select></label>
-<label>ID de Horizons (si se mueve)<input id="f_h" placeholder="433"></label>
+<label>ID de Horizons (solo si se mueve)<input id="f_h" placeholder="433"></label>
 <label class="ck"><input id="f_d" type="checkbox"> Modo diferencia</label>
 </div>
-<button id="f_go" class="mb">GENERAR GIF</button>
-<pre id="f_log"></pre><img id="f_img" alt="GIF generado" hidden><a id="f_dl" class="mb" hidden download>Descargar GIF</a>
+<button id="f_go" class="btn pri">Generar GIF</button>
+<pre id="f_log"></pre><img id="f_img" alt="GIF generado" hidden><a id="f_dl" class="btn" hidden download>Descargar GIF</a>
 </section>
-<p class="ft">Los objetos con GIF muestran imágenes REALES de SPHEREx; los demás tienen una animación ILUSTRATIVA (movimientos exagerados). SPHEREx observa desde mayo de 2025.</p>
-<div id="card"><button id="x">X</button><div id="cb"></div></div>
+<p class="nota">Los objetos con GIF muestran imágenes REALES de SPHEREx; los demás tienen una animación ILUSTRATIVA (movimientos exagerados). SPHEREx observa desde mayo de 2025.</p>
+<div id="bk"></div><div id="card"><button id="x" class="btn">✕</button><div id="cb"></div></div>
+<button id="gtab">GUÍA</button>
+<aside id="guia"><div id="gh">📘 Guía de Space-Craft<button class="btn" id="gx">✕</button></div><div id="gb">
+<details open><summary>¿Qué es Space-Craft?</summary>
+<p>SPHEREx es un telescopio espacial de la NASA que desde mayo de 2025 fotografía todo el cielo cada seis meses en 102 “colores” de luz infrarroja. Space-Craft te deja ver un pedacito del cielo en fotos tomadas en fechas distintas, como un videíto. Lo que se mueve entre fotos puede ser un asteroide, un cometa o una estrella cercana: así se descubrió Plutón.</p></details>
+<details open><summary>Cómo usar el mapa (4 pasos)</summary><ol>
+<li>Mirá el mapa: cada ícono es un objeto del cielo.</li>
+<li>Tocá un ícono o su etiqueta (o un nombre de la lista).</li>
+<li>Se abre una ficha: qué es, a qué distancia está y qué buscar en el GIF.</li>
+<li>Mirá el GIF o mové la barra para ir cuadro por cuadro. Con “Cargar en el explorador” podés generar tu propio GIF de ese lugar.</li></ol></details>
+<details><summary>Qué es cada cosa</summary><dl>
+<dt>Mapa del cielo</dt><dd>Todo el cielo “abierto” como un mapa plano. Arriba es el Norte y el Este está a la izquierda.</dd>
+<dt>Ícono y etiqueta (callout)</dt><dd>El ícono marca dónde está el objeto. La etiqueta con su nombre está unida por una línea cuando queda lejos.</dd>
+<dt>Colores / tipos</dt><dd>Cada tipo de objeto tiene su color (leyenda debajo del mapa): estrella, enana marrón, variable, nebulosa, galaxia…</dd>
+<dt>RA (ascensión recta)</dt><dd>Como la longitud del cielo, de 0° a 360°. 1 hora = 15°.</dd>
+<dt>Dec (declinación)</dt><dd>Como la latitud del cielo, de −90° (sur) a +90° (norte).</dd>
+<dt>Campo (arcmin)</dt><dd>Qué tan grande es el recorte. 60 minutos de arco = 1 grado; la Luna mide unos 30. Más campo = más cosas, pero tarda más.</dd>
+<dt>Detector (D1 a D6)</dt><dd>SPHEREx tiene seis detectores y cada uno ve otro rango de colores infrarrojos. Por eso el brillo puede parpadear entre cuadros.</dd>
+<dt>Modo diferencia</dt><dd>Resta lo que no cambia (las estrellas fijas) y deja a la vista lo que se mueve o cambia de brillo.</dd>
+<dt>ID de Horizons</dt><dd>Solo para objetos que se mueven (planetas, asteroides, cometas): su número en la base de la NASA JPL Horizons, por ejemplo 433 para Eros.</dd>
+<dt>Variable</dt><dd>Estrella cuyo brillo sube y baja con el tiempo.</dd>
+<dt>Enana marrón</dt><dd>Bola de gas muy fría: demasiado grande para ser planeta y demasiado chica para ser estrella.</dd>
+<dt>Eclíptica y Vía Láctea</dt><dd>Puntos naranjas: el camino aparente del Sol. Banda violeta: nuestra galaxia vista de canto.</dd>
+<dt>GIF real / ilustrativo</dt><dd>Los GIF con fecha en cada cuadro son imágenes reales de SPHEREx. Los demás son animaciones de ejemplo, con movimientos exagerados.</dd></dl></details>
+<details><summary>Cómo usar “Explorá el cielo”</summary><ol>
+<li>Escribí un nombre (lo busca en SIMBAD) <b>o</b> RA y Dec.</li>
+<li>Elegí el campo (10 es un buen comienzo) y el detector.</li>
+<li>Tocá <b>Generar GIF</b> y esperá: se muestra el avance.</li>
+<li>Probá el modo diferencia para ver qué cambia.</li></ol>
+<p>También funciona con enlaces: <code>?ra=133.79&amp;dec=-7.24&amp;size=15</code></p>
+<p>Formatos: <code>269.44</code> (grados) o <code>17h57m48s</code> / <code>+04d41m36s</code>.</p></details>
+<details open><summary>Ejemplos de coordenadas</summary><p>Tocá “Cargar” y se completa el explorador.</p><div id="egs"></div>
+<div class="eg"><div><b>WISE 0855 (con horas y grados)</b><small>RA 08h55m10.831s · Dec −07d14m42.53s · campo 15</small></div><button class="btn" onclick="cargar('','08h55m10.831s','-07d14m42.53s',15)">Cargar</button></div></details>
+<details><summary>Problemas frecuentes</summary><ul>
+<li><b>Tarda mucho:</b> es normal, baja datos de la NASA. Los pedidos repetidos salen al instante.</li>
+<li><b>“IRSA no responde”:</b> el archivo de la NASA está fuera de servicio. Probá más tarde.</li>
+<li><b>No veo nada moverse:</b> casi todo en el cielo está quieto; por eso lo que se mueve se destaca.</li>
+<li><b>Sin imágenes:</b> probá otro detector o un campo más grande.</li></ul></details>
+</div></aside>
 <script>
-const REAL_GIFS={"8": "gifs_pre/08.gif", "10": "gifs_pre/10.gif", "11": "gifs_pre/11.gif", "12": "gifs_pre/12.gif", "13": "gifs_pre/13.gif", "14": "gifs_pre/14.gif", "15": "gifs_pre/15.gif", "16": "gifs_pre/16.gif", "17": "gifs_pre/17.gif", "18": "gifs_pre/18.gif", "19": "gifs_pre/19.gif", "20": "gifs_pre/20.gif"}; // n° (1-20) → data URI de un GIF real; si existe reemplaza la animación
-const T={P:['Planeta / planeta enano','#4aedd9'],K:['Cometa','#bfe9ff'],A:['Asteroide','#c2c2c2'],E:['Estrella','#fcee4b'],M:['Enana marrón','#f67b13'],V:['Estrella variable','#ff4a3d'],S:['Estrella con planetas / disco','#3be06b'],N:['Nebulosa / nube','#b98cf0'],G:['Galaxia','#5b8cff']};
-// nombre, corto, tipo, RA°, Dec° (null = se mueve), distancia, qué es, qué buscar, animación, parámetros
+const REAL_GIFS={"8":"gifs_pre/08.gif","10":"gifs_pre/10.gif","11":"gifs_pre/11.gif","12":"gifs_pre/12.gif","13":"gifs_pre/13.gif","14":"gifs_pre/14.gif","15":"gifs_pre/15.gif","16":"gifs_pre/16.gif","17":"gifs_pre/17.gif","18":"gifs_pre/18.gif","19":"gifs_pre/19.gif","20":"gifs_pre/20.gif"};
+const T={E:['Estrella','#fcee4b'],M:['Enana marrón','#f67b13'],V:['Estrella variable','#ff4a3d'],S:['Estrella con planetas / disco','#3be06b'],N:['Nebulosa / nube','#b98cf0'],G:['Galaxia','#5b8cff'],D:['Campo profundo','#4aedd9']};
+// nombre, corto, tipo, RA°, Dec°, distancia, qué es, qué buscar, animación, parámetros, campo (arcmin)
 const O=[
-['Urano','Urano','P',59,null,'19 veces la distancia Tierra–Sol','Gigante de hielo inclinado de costado. El metano de su atmósfera le da su color verde azulado. Se mide su espectro infrarrojo completo.','Su brillo cambia según la banda infrarroja.','p',[4,.3]],
-['Neptuno','Neptuno','P',1,null,'30 veces la distancia Tierra–Sol','Gigante de hielo con los vientos más rápidos del sistema solar. Sus nubes exteriores de metano cambian con el tiempo.','Cambios de brillo en el infrarrojo.','p',[3,-.2]],
-['Plutón','Plutón','P',301,null,'~35 veces la distancia Tierra–Sol','Planeta enano helado. En su superficie hay hielos de nitrógeno, metano y monóxido de carbono.','Es un puntito que se corre despacio.','m',[.25,.05]],
-['Cometa 3I/ATLAS','3I/ATLAS','K',225,null,'Visitante interestelar','Tercer objeto interestelar descubierto (julio de 2025). Su coma libera agua, CO₂ y moléculas orgánicas.','La coma es una nube brillante con cola.','k',[.9,.3]],
-['Asteroide (433) Eros','Eros','A',175,null,'Entre la Tierra y Marte','Asteroide alargado de ~34 km que visitó la sonda NEAR (2000–2001). Se estudia su reflectividad y sus minerales.','Se corre rápido entre cuadros.','m',[1.1,-.4]],
-['Asteroide (101955) Bennu','Bennu','A',200,null,'Cerca de la órbita de la Tierra','Asteroide rico en carbono de ~490 m. La sonda OSIRIS-REx trajo una muestra a la Tierra en 2023.','Un punto muy débil que se mueve.','m',[1.3,.5]],
-['Planeta enano Ceres','Ceres','P',130,null,'Cinturón de asteroides','Planeta enano de ~940 km. Tiene minerales hidratados y carbonatos en la superficie.','Se desplaza contra las estrellas fijas.','m',[.8,.2]],
-['Estrella de Barnard','Barnard','E',269.45,4.69,'6 años luz','La estrella individual más cercana al Sol. Tiene el mayor movimiento propio conocido: ~10,4″ por año.','Buscá el punto que se corre entre cuadros.','m',[-.15,-.9]],
-['Épsilon Indi B','Épsilon Indi B','M',331.04,-56.78,'12 años luz','Par de enanas marrones que orbita a la estrella Épsilon Indi. Atmósfera fría con metano.','Las enanas marrones brillan en infrarrojo.','m',[-.7,.45]],
-['WISE 0855−0714','WISE 0855','M',133.80,-7.25,'7 años luz','Uno de los objetos más fríos conocidos, cerca de la temperatura del hielo. Se cree que tiene nubes de agua helada. Se mueve ~8″ por año.','Muy débil y veloz.','m',[1,-.1]],
-['RW Aurigae','RW Aur','V',76.96,30.40,'~450 años luz','Estrella joven con disco de polvo. Su brillo cae de golpe cada tanto; se cree que por polvo que pasa por delante.','Brillo sin patrón fijo.','v',[.85,0]],
-['R Draconis','R Dra','V',248.18,66.76,'—','Gigante roja que pulsa: se hincha y se achica, y pierde masa. Su brillo sube y baja en ciclos de unos 8 meses.','Brillo que sube y baja con ritmo.','v',[.9,3.1]],
-['TRAPPIST-1','TRAPPIST-1','S',346.62,-5.04,'40 años luz','Enana ultrafría con siete planetas rocosos de tamaño parecido a la Tierra. Se mide el espectro de la estrella.','Una estrellita débil y casi constante.','v',[.12,5]],
-['Beta Pictoris','Beta Pic','S',86.82,-51.07,'63 años luz','Estrella joven rodeada por un disco de escombros y gas. Ya se descubrieron planetas gigantes en él.','La franja de polvo que la atraviesa.','d',[]],
-['Próxima Centauri','Próxima','E',217.43,-62.68,'4,2 años luz','La estrella más cercana al Sol. Enana roja con fulguraciones y un planeta en su zona habitable.','Destellos súbitos de brillo (fulguraciones).','m',[.5,-.1,1]],
-['Región de Cygnus X','Cygnus X','N',307.5,41.0,'~4 600 años luz','Gran guardería de estrellas masivas. Tiene hielo de agua e hidrocarburos aromáticos.','Nubes con mucho gas y polvo.','n',[]],
-['Nube de Rho Ophiuchi','Rho Ophiuchi','N',246.8,-24.5,'~400 años luz','Nube con estrellas recién nacidas. Guarda hielo de agua y CO₂ que podría formar planetas.','Reserva de hielo para futuros planetas.','n',[]],
-['Nebulosa de Orión (M42)','Orión M42','N',83.82,-5.39,'1 350 años luz','Guardería estelar cercana. Se separa la luz de las estrellas jóvenes del resplandor del gas y el polvo.','Estrellas jóvenes dentro de la nube.','n',[]],
-['Nebulosa NGC 1760','NGC 1760','N',74.1,-66.4,'160 000 años luz','Región de formación estelar en la Gran Nube de Magallanes, donde se distinguen estrellas individuales.','Estrellas sueltas dentro de la nebulosa.','n',[]],
-['Gran Nube de Magallanes','Gran Nube','G',80.89,-69.76,'160 000 años luz','Galaxia satélite de la Vía Láctea. Se la cartografía completa en 102 colores infrarrojos.','Una galaxia entera, vista en muchos colores.','g',[]]
+['Galaxia de Andrómeda (M31)','Andrómeda','G',10.685,41.269,'2,5 millones de años luz','La galaxia grande más cercana a la Vía Láctea, con cerca de un billón de estrellas. En infrarrojo se ve su núcleo y su polvo.','Un núcleo brillante rodeado de estrellas.','g',[],20],
+['Galaxia del Remolino (M51)','Remolino M51','G',202.470,47.195,'~25 millones de años luz','Galaxia espiral que interactúa con una compañera más chica. Sus brazos tienen polvo y estrellas jóvenes.','Los brazos espirales.','g',[],10],
+['Centro de la Vía Láctea','Centro Galáctico','G',266.417,-29.008,'26 000 años luz','Allí hay un agujero negro supermasivo. El polvo tapa la luz visible, pero el infrarrojo lo atraviesa.','Miles de estrellas muy apretadas.','f',[160],10],
+['Nebulosa del Cangrejo (M1)','Cangrejo M1','N',83.633,22.014,'6 500 años luz','Restos de una supernova que astrónomos chinos vieron explotar en el año 1054.','Filamentos de gas lanzados por la explosión.','n',[],10],
+['Nebulosa del Anillo (M57)','Anillo M57','N',283.396,33.029,'2 300 años luz','Nebulosa planetaria: el gas que expulsó una estrella parecida al Sol al final de su vida.','Un anillo con una estrella débil en el centro.','r',[],10],
+['Mira (ómicron Ceti)','Mira','V',34.837,-2.978,'~300 años luz','Gigante roja que pulsa: su brillo sube y baja en ciclos de unos 11 meses (332 días).','Su brillo sube y baja con ritmo.','v',[.9,4.25],10],
+['Polo norte de la eclíptica','Polo N eclíptico','D',270.0,66.561,'—','SPHEREx pasa por los polos de la eclíptica una y otra vez: obtiene imágenes muy profundas con muchísimas galaxias lejanas.','Galaxias débiles, casi todas fijas.','f',[70],15],
+['Estrella de Barnard','Barnard','E',269.45,4.69,'6 años luz','La estrella individual más cercana al Sol. Tiene el mayor movimiento propio conocido: ~10,4″ por año.','Buscá el punto que se corre entre cuadros.','m',[-.15,-.9],10],
+['Luhman 16','Luhman 16','M',162.328,-53.319,'6,5 años luz','El par de enanas marrones más cercano al Sol. Se mueve ~2,8″ por año.','Un puntito que se corre entre cuadros.','m',[.8,-.1],10],
+['WISE 0855−0714','WISE 0855','M',133.80,-7.25,'7 años luz','Uno de los objetos más fríos conocidos, cerca de la temperatura del hielo. Se cree que tiene nubes de agua helada. Se mueve ~8″ por año.','Muy débil y veloz.','m',[1,-.1],15],
+['RW Aurigae','RW Aur','V',76.96,30.40,'~450 años luz','Estrella joven con disco de polvo. Su brillo cae de golpe cada tanto; se cree que por polvo que pasa por delante.','Brillo sin patrón fijo.','v',[.85,0],10],
+['R Draconis','R Dra','V',248.18,66.76,'—','Gigante roja que pulsa: se hincha y se achica, y pierde masa. Su brillo sube y baja en ciclos de unos 8 meses.','Brillo que sube y baja con ritmo.','v',[.9,3.1],10],
+['TRAPPIST-1','TRAPPIST-1','S',346.62,-5.04,'40 años luz','Enana ultrafría con siete planetas rocosos de tamaño parecido a la Tierra.','Una estrellita débil y casi constante.','v',[.12,5],10],
+['Beta Pictoris','Beta Pic','S',86.82,-51.07,'63 años luz','Estrella joven rodeada por un disco de escombros y gas. Ya se descubrieron planetas gigantes en él.','La franja de polvo que la atraviesa.','d',[],10],
+['Próxima Centauri','Próxima','E',217.43,-62.68,'4,2 años luz','La estrella más cercana al Sol. Enana roja con fulguraciones y un planeta en su zona habitable.','Destellos súbitos de brillo (fulguraciones).','m',[.5,-.1,1],10],
+['Región de Cygnus X','Cygnus X','N',307.5,41.0,'~4 600 años luz','Gran guardería de estrellas masivas. Tiene hielo de agua e hidrocarburos aromáticos.','Nubes con mucho gas y polvo.','n',[],20],
+['Nube de Rho Ophiuchi','Rho Ophiuchi','N',246.8,-24.5,'~400 años luz','Nube con estrellas recién nacidas. Guarda hielo de agua y CO₂ que podría formar planetas.','Reserva de hielo para futuros planetas.','n',[],20],
+['Nebulosa de Orión (M42)','Orión M42','N',83.82,-5.39,'1 350 años luz','Guardería estelar cercana. Se separa la luz de las estrellas jóvenes del resplandor del gas y el polvo.','Estrellas jóvenes dentro de la nube.','n',[],20],
+['Nebulosa NGC 1760','NGC 1760','N',74.1,-66.4,'160 000 años luz','Región de formación estelar en la Gran Nube de Magallanes, donde se distinguen estrellas individuales.','Estrellas sueltas dentro de la nebulosa.','n',[],15],
+['Gran Nube de Magallanes','Gran Nube','G',80.89,-69.76,'160 000 años luz','Galaxia satélite de la Vía Láctea. Se la cartografía completa en 102 colores infrarrojos.','Una galaxia entera, vista en muchos colores.','g',[],20]
 ];
-const SP={P:['..xxx..','.xxxxx.','xxxxxxx','xxxxxxx','xxxxxxx','.xxxxx.','..xxx..'],K:['x......','.x..xx.','..xxxxx','..xxxxx','..xxxxx','...xxx.','.......'],A:['..xx...','.xxxxx.','xxxxxxx','xxxxxx.','.xxxxxx','.xxxxx.','..xx...'],E:['...x...','..xxx..','.xxxxx.','xxxxxxx','.xxxxx.','..xxx..','...x...'],M:['.......','..xxx..','.xxxxx.','.xxxxx.','.xxxxx.','..xxx..','.......'],V:['...x...','x..x..x','.x.x.x.','xxxxxxx','.x.x.x.','x..x..x','...x...'],S:['..xxx..','.xxxxx.','xxxxxxx','.xxxxx.','..xxx..','.......','x.x.x.x'],N:['..xxx..','.xxxxx.','xxxxxxx','xxxxxxx','.xxxxx.','..x.x..','.......'],G:['..xxx..','.x...x.','x.xxx.x','x.x.x.x','x.xx..x','.x...x.','..xxx..']};
+const EQ={8:[269.4442,4.7651],15:[217.3703,-62.6744],9:[162.328,-53.319]};
+const SP={E:['...x...','..xxx..','.xxxxx.','xxxxxxx','.xxxxx.','..xxx..','...x...'],M:['.......','..xxx..','.xxxxx.','.xxxxx.','.xxxxx.','..xxx..','.......'],V:['...x...','x..x..x','.x.x.x.','xxxxxxx','.x.x.x.','x..x..x','...x...'],S:['..xxx..','.xxxxx.','xxxxxxx','.xxxxx.','..xxx..','.......','x.x.x.x'],N:['..xxx..','.xxxxx.','xxxxxxx','xxxxxxx','.xxxxx.','..x.x..','.......'],G:['..xxx..','.x...x.','x.xxx.x','x.x.x.x','x.xx..x','.x...x.','..xxx..'],D:['x.x.x.x','.......','x.x.x.x','.......','x.x.x.x','.......','x.x.x.x']};
 const D=Math.PI/180,$=s=>document.querySelector(s),N=8;
+const API=((document.querySelector('meta[name=api-base]')||{}).content||'').replace(/\/$/,'');
 function gal(l,b){const aG=192.85948*D,dG=27.12825*D,lN=122.93192*D;l*=D;b*=D;
 const dec=Math.asin(Math.sin(dG)*Math.sin(b)+Math.cos(dG)*Math.cos(b)*Math.cos(lN-l));
 const ra=aG+Math.atan2(Math.cos(b)*Math.sin(lN-l),Math.cos(dG)*Math.sin(b)-Math.sin(dG)*Math.cos(b)*Math.cos(lN-l));
 return[((ra/D)%360+360)%360,dec/D]}
 function rng(s){return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
-// ---- fondo del cielo
 (function(){const x=$('#bg').getContext('2d'),W=300,H=150,r=rng(7);
 const P=(ra,de)=>[Math.floor((360-ra)/360*W),Math.floor((90-de)/180*H)];
 x.fillStyle='#0d0b16';x.fillRect(0,0,W,H);x.fillStyle='rgba(255,255,255,.06)';
@@ -111,21 +162,23 @@ for(let l=0;l<360;l+=.3)for(let b=-12;b<=12;b+=1){const g=b/6,k=Math.exp(-g*g)*(
 if(k>.35){const q=gal(l,b),p=P(q[0],q[1]);x.fillStyle='rgba(150,100,230,'+Math.min(.55,k*.38)+')';x.fillRect(p[0],p[1],1,1)}}
 x.fillStyle='rgba(251,211,108,.8)';for(let a=0;a<360;a+=1.2){const d=Math.atan(Math.tan(23.44*D)*Math.sin(a*D))/D,p=P(a,d);if((a/1.2|0)%2)x.fillRect(p[0],p[1],1,1)}
 for(let i=0;i<340;i++){const b=r();x.fillStyle=b>.85?'#fff':b>.5?'#b5b0c8':'#5a5470';x.fillRect(r()*W|0,r()*H|0,1,1)}})();
-// ---- pines, callouts, lista, leyenda
 const pins=$('#pins');
-O.forEach((o,i)=>{o.id=i+1;o.t=o[2];if(o[4]===null){o[4]=Math.atan(Math.tan(23.44*D)*Math.sin(o[3]*D))/D;o.mv=true}
-const p=document.createElement('button');p.className='pin'+(o.mv?' mv':'');p.title=o[0];
-const cv=document.createElement('canvas');cv.width=cv.height=7;const cx=cv.getContext('2d');cx.fillStyle=T[o.t][1];
+O.forEach((o,i)=>{o.id=i+1;o.t=o[2];const col=T[o.t][1];
+const p=document.createElement('button');p.className='pin';p.title=o[0];
+const cv=document.createElement('canvas');cv.width=cv.height=7;const cx=cv.getContext('2d');cx.fillStyle=col;
 SP[o.t].forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch=='x')cx.fillRect(x,y,1,1)}));p.appendChild(cv);
-const g=document.createElement('button');g.className='tag';g.textContent=o.id+' '+o[1];
+const g=document.createElement('button');g.className='tag';g.style.setProperty('--c',col);g.textContent=o.id+' '+o[1];
 o.pin=p;o.tag=g;[p,g].forEach(e=>{e.onclick=()=>openCard(o)});pins.append(p,g);
-const l=document.createElement('button');l.className='mb';l.textContent=o.id+'. '+o[0];l.onclick=()=>openCard(o);$('#lst').append(l)});
+const l=document.createElement('button');l.className='btn';l.innerHTML='<i class="dot" style="background:'+col+'"></i>'+o.id+'. '+o[0];l.onclick=()=>openCard(o);$('#lst').append(l);
+const c=EQ[o.id]||[o[3],o[4]];
+$('#egs').insertAdjacentHTML('beforeend','<div class="eg"><div><b>'+o.id+'. '+o[0]+'</b><small>RA '+c[0]+' · Dec '+c[1]+' · campo '+o[10]+'</small></div><button class="btn" data-i="'+i+'">Cargar</button></div>')});
+$('#egs').onclick=e=>{const b=e.target.closest('button[data-i]');if(b)cargarObj(O[+b.dataset.i])};
 for(let h=2;h<=22;h+=2){const s=document.createElement('span');s.textContent=h+'h';s.style.left=(360-h*15)/360*100+'%';$('#ra').append(s)}
 Object.values(T).forEach(v=>{$('#lg').insertAdjacentHTML('beforeend','<span><i style="background:'+v[1]+'"></i>'+v[0]+'</span>')});
 function layout(){const m=$('#map'),W=m.clientWidth,H=m.clientHeight,c=$('#ln');c.width=W;c.height=H;const x=c.getContext('2d');
 const R=[],dirs=[[1,0],[-1,0],[0,-1],[0,1],[1,-1],[-1,-1],[1,1],[-1,1]];
 O.forEach(o=>{o.px=(360-o[3])/360*W;o.py=(90-o[4])/180*H;o.pin.style.left=o.px+'px';o.pin.style.top=o.py+'px';R.push([o.px-11,o.py-11,22,22])});
-x.strokeStyle='#c6c6c6';x.lineWidth=2;
+x.strokeStyle='rgba(200,200,220,.6)';x.lineWidth=1.5;
 O.forEach(o=>{const w=o.tag.offsetWidth,h=o.tag.offsetHeight;let b=null;
 for(const d of[14,36,64,100]){for(const u of dirs){const cx=o.px+u[0]*(w/2+d),cy=o.py+u[1]*(h/2+d),a=cx-w/2,e=cy-h/2;
 if(a<0||e<0||a+w>W||e+h>H||R.some(r=>a<r[0]+r[2]&&a+w>r[0]&&e<r[1]+r[3]&&e+h>r[1]))continue;b=[a,e,cx,cy,d];break}if(b)break}
@@ -133,58 +186,58 @@ if(!b)b=[o.px+14,o.py-h/2,o.px+14+w/2,o.py,14];
 o.tag.style.left=b[0]+'px';o.tag.style.top=b[1]+'px';R.push([b[0],b[1],w,h]);
 if(b[4]>14){x.beginPath();x.moveTo(o.px,o.py);x.lineTo(b[2],b[3]);x.stroke()}})}
 addEventListener('resize',layout);layout();if(document.fonts)document.fonts.ready.then(layout);
-// ---- animación ilustrativa (64x64)
 const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 function fecha(f){const t=4+Math.round(18*f/(N-1));return MES[t%12]+' '+(2025+Math.floor(t/12))}
 function frame(o,f,x){const col=T[o.t][1],r=rng(o.id*977+13),a=o[8],p=o[9]||[],c=32,s=f-(N-1)/2;
 x.globalAlpha=1;x.fillStyle='#0d0b16';x.fillRect(0,0,64,64);
 for(let i=0;i<40;i++){const u=r()*64|0,v=r()*64|0,k=r();x.fillStyle=k>.8?'#fff':k>.4?'#b5b0c8':'#5a5470';x.fillRect(u,v,1,1)}
 const q=rng(o.id*31+f*7+1);x.fillStyle='#6b6580';for(let i=0;i<3;i++)x.fillRect(q()*64|0,q()*64|0,1,1);
-if(a=='m'||a=='k'){const u=Math.round(c+s*p[0]*1.6),v=Math.round(c+s*p[1]*1.6);
 if(a=='m'){x.fillStyle='rgba(255,255,255,.3)';[[-14,0],[12,0],[0,-14],[0,12]].forEach(d=>x.fillRect(c+d[0],c+d[1],2,2));
+const u=Math.round(c+s*p[0]*1.6),v=Math.round(c+s*p[1]*1.6);
 if(p[2]&&(f==3||f==6)){x.globalAlpha=.5;x.fillStyle=col;x.fillRect(u-3,v-3,7,7);x.globalAlpha=1}
 x.fillStyle=col;x.fillRect(u-1,v,3,1);x.fillRect(u,v-1,1,3);x.fillStyle='#fff';x.fillRect(u,v,1,1)}
-else{x.fillStyle='rgba(255,255,255,.3)';[[-14,0],[12,0],[0,-14],[0,12]].forEach(d=>x.fillRect(c+d[0],c+d[1],2,2));
-for(let i=1;i<=12;i++){x.globalAlpha=1-i/14;x.fillStyle=col;x.fillRect(u-i*2,v-i,2,1+(i<5))}
-x.globalAlpha=.5;x.fillRect(u-3,v-3,6,6);x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(u-1,v-1,2,2)}}
-else if(a=='p'){const R=p[0],u=Math.round(c+s*p[1]*1.6),br=.7+.3*Math.sin(2*Math.PI*f/6);
-for(let yy=-R;yy<=R;yy++)for(let xx=-R;xx<=R;xx++)if(xx*xx+yy*yy<=R*R){x.globalAlpha=br*((yy&1)?.82:1);x.fillStyle=col;x.fillRect(u+xx,c+yy,1,1)}
-x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(u-R+1,c-R+1,1,1)}
 else if(a=='v'){const t=p[1]?.5+.5*Math.sin(2*Math.PI*f/p[1]):[1,1,.9,.25,.2,.7,1,1][f],k=1+Math.round(p[0]*5*t);
 x.globalAlpha=.3+.7*t;x.fillStyle=col;x.fillRect(c-k,c-k,2*k+1,2*k+1);x.fillStyle='#fff';x.fillRect(c-1,c-1,3,3)}
 else if(a=='d'){for(let i=-26;i<=26;i++){x.globalAlpha=.6*(1-Math.abs(i)/30);x.fillStyle=col;x.fillRect(c+i,c-1,1,2+(Math.abs(i)<14?1:0))}
 x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(c-1,c-1,3,3)}
 else if(a=='n'){for(let i=0;i<110;i++){const an=r()*6.28,d=(r()+r()+r())/3*20,u=c+Math.cos(an)*d*1.2|0,v=c+Math.sin(an)*d|0;x.globalAlpha=.25+.5*r();x.fillStyle=r()>.7?'#ff9ad0':col;x.fillRect(u,v,2,2)}
 x.globalAlpha=1;x.fillStyle='#fff';for(let i=0;i<5;i++)x.fillRect(c+(r()-.5)*30|0,c+(r()-.5)*30|0,1,1)}
-else{for(let i=0;i<220;i++){const an=i*.17,d=1+i*.1,u=c+(Math.cos(an)*d*1.3)*.9|0,v=c+(Math.sin(an)*d*.55)|0;x.globalAlpha=Math.max(.2,1-i/260);x.fillStyle=i<30?'#fff':col;x.fillRect(u,v,1,1)}}
+else if(a=='g'){for(let i=0;i<220;i++){const an=i*.17,d=1+i*.1,u=c+(Math.cos(an)*d*1.3)*.9|0,v=c+(Math.sin(an)*d*.55)|0;x.globalAlpha=Math.max(.2,1-i/260);x.fillStyle=i<30?'#fff':col;x.fillRect(u,v,1,1)}}
+else if(a=='r'){for(let i=0;i<70;i++){const an=i/70*6.283,d=10+(r()-.5)*3,u=c+Math.cos(an)*d*1.1|0,v=c+Math.sin(an)*d|0;x.globalAlpha=.5+.4*r();x.fillStyle=i%6?col:'#ff9ad0';x.fillRect(u,v,2,2)}
+x.globalAlpha=1;x.fillStyle='#fff';x.fillRect(c,c,2,2)}
+else{const n=p[0]||70;for(let i=0;i<n;i++){x.globalAlpha=.3+.5*r();x.fillStyle=r()>.5?col:'#ffd0f0';x.fillRect(r()*62|0,r()*62|0,2,2)}}
 x.globalAlpha=1}
 let tm=null,fr=0,play=true;
 function clearSel(){O.forEach(e=>{e.pin.classList.remove('on');e.tag.classList.remove('on')})}
 function openCard(o){clearSel();o.pin.classList.add('on');o.tag.classList.add('on');
-const real=REAL_GIFS[o.id],ty=T[o.t],ub=o.mv?'Este objeto se mueve por el cielo: su lugar en el mapa es ilustrativo. Para su posición exacta de hoy usá JPL Horizons.':'RA '+o[3].toFixed(2)+'° · Dec '+o[4].toFixed(2)+'°';
+const real=REAL_GIFS[o.id],ty=T[o.t],c=EQ[o.id]||[o[3],o[4]];
 $('#cb').innerHTML='<h2>'+o.id+'. '+o[0]+'</h2><span class="bd" style="background:'+ty[1]+'">'+ty[0]+'</span>'+
-(real?'<img id="rl" src="'+real+'" alt="GIF"><p class="ft">Imágenes reales de SPHEREx, ordenadas por fecha. Cada cuadro se tomó en otra longitud de onda, por eso el brillo puede parpadear.</p>':'<canvas id="cv" width="64" height="64"></canvas><div class="ct"><button id="pp" class="mb">❚❚</button><input id="sl" type="range" min="0" max="'+(N-1)+'" value="0"><span id="fd"></span></div><p class="ft">Animación ilustrativa, no son datos reales.</p>')+
-'<dl><dt>¿QUÉ ES?</dt><dd>'+o[6]+'</dd><dt>DISTANCIA</dt><dd>'+o[5]+'</dd><dt>QUÉ BUSCAR</dt><dd>'+o[7]+'</dd><dt>UBICACIÓN</dt><dd>'+ub+'</dd></dl>';
-$('#card').style.display='block';clearInterval(tm);
+(real?'<img id="rl" src="'+real+'" alt="GIF"><p class="ft">Imágenes reales de SPHEREx, ordenadas por fecha. Cada cuadro se tomó en otra longitud de onda, por eso el brillo puede parpadear.</p>':'<canvas id="cv" width="64" height="64"></canvas><div class="ct"><button id="pp" class="btn">❚❚</button><input id="sl" type="range" min="0" max="'+(N-1)+'" value="0"><span id="fd"></span></div><p class="ft">Animación ilustrativa, no son datos reales.</p>')+
+'<dl><dt>¿QUÉ ES?</dt><dd>'+o[6]+'</dd><dt>DISTANCIA</dt><dd>'+o[5]+'</dd><dt>QUÉ BUSCAR</dt><dd>'+o[7]+'</dd><dt>COORDENADAS</dt><dd>RA '+c[0]+'° · Dec '+c[1]+'° · campo '+o[10]+'′</dd></dl><button class="btn pri" id="cg">Cargar en “Explorá el cielo”</button>';
+$('#bk').style.display=$('#card').style.display='block';clearInterval(tm);
+$('#cg').onclick=()=>cargarObj(o);
 if(!real){const x=$('#cv').getContext('2d'),sl=$('#sl');fr=0;play=true;
 const show=f=>{fr=f;frame(o,f,x);sl.value=f;$('#fd').textContent=fecha(f)};show(0);
 tm=setInterval(()=>{if(play)show((fr+1)%N)},650);
 sl.oninput=()=>{play=false;$('#pp').textContent='▶';show(+sl.value)};
 $('#pp').onclick=()=>{play=!play;$('#pp').textContent=play?'❚❚':'▶'}}}
-function closeCard(){$('#card').style.display='none';clearInterval(tm);clearSel()}
-$('#x').onclick=closeCard;addEventListener('keydown',e=>{if(e.key=='Escape')closeCard()});
-</script><script>
-(function(){const $=s=>document.querySelector(s),q=new URLSearchParams(location.search);
-const API=((document.querySelector('meta[name=api-base]')||{}).content||'').replace(/\/$/,'');
-const sv={nombre:'#f_n',ra:'#f_ra',dec:'#f_dec',size:'#f_s',horizons:'#f_h'};
+function closeCard(){$('#bk').style.display=$('#card').style.display='none';clearInterval(tm);clearSel()}
+$('#x').onclick=closeCard;$('#bk').onclick=closeCard;
+function cargar(n,ra,dec,campo){$('#f_n').value=n||'';$('#f_ra').value=ra;$('#f_dec').value=dec;$('#f_s').value=campo||10;$('#f_h').value='';
+closeCard();if(innerWidth<1100)guia(false);$('#ex').scrollIntoView({behavior:'smooth'});$('#f_go').focus()}
+function cargarObj(o){const c=EQ[o.id]||[o[3],o[4]];cargar('',c[0],c[1],o[10])}
+function guia(v){document.body.classList.toggle('gopen',v)}
+$('#gbtn').onclick=()=>guia(!document.body.classList.contains('gopen'));$('#gtab').onclick=()=>guia(true);$('#gx').onclick=()=>guia(false);
+addEventListener('keydown',e=>{if(e.key=='Escape'){closeCard();if(innerWidth<1100)guia(false)}});
+if(innerWidth>=1100)guia(true);
+// ---- Explorá el cielo
+const q=new URLSearchParams(location.search),sv={nombre:'#f_n',ra:'#f_ra',dec:'#f_dec',size:'#f_s',horizons:'#f_h'};
 for(const k in sv)if(q.get(k))$(sv[k]).value=q.get(k);
 if(q.get('banda')){const m=q.get('banda').match(/[1-6]$/);if(m)$('#f_b').value='D'+m[0]}
 if(q.get('diff')=='1')$('#f_d').checked=true;
 let busy=false;
-async function go(){if(busy)return;const log=$('#f_log'),img=$('#f_img'),dl=$('#f_dl');
-const h=$('#f_h').value.trim();
-const p={nombre:$('#f_n').value.trim()||null,ra:$('#f_ra').value.trim()||null,dec:$('#f_dec').value.trim()||null,
-size:+$('#f_s').value||10,banda:'SPHEREx-'+$('#f_b').value,diff:$('#f_d').checked,horizons:h||null,tipo:/^[1-9]99$/.test(h)?'majorbody':(/^[A-Z]\/\d{4}/.test(h)?'designation':'smallbody')};
+async function go(){if(busy)return;const log=$('#f_log'),img=$('#f_img'),dl=$('#f_dl'),h=$('#f_h').value.trim();
+const p={nombre:$('#f_n').value.trim()||null,ra:$('#f_ra').value.trim()||null,dec:$('#f_dec').value.trim()||null,size:+$('#f_s').value||10,banda:'SPHEREx-'+$('#f_b').value,diff:$('#f_d').checked,horizons:h||null,tipo:/^[1-9]99$/.test(h)?'majorbody':(/^[A-Z]\/\d{4}/.test(h)?'designation':'smallbody')};
 if(!(p.nombre||(p.ra&&p.dec)||p.horizons)){alert('Escribí un nombre, o RA y Dec.');return}
 busy=true;$('#f_go').disabled=true;img.hidden=dl.hidden=true;log.style.display='block';log.textContent='Enviando pedido...';
 try{const r=await fetch(API+'/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
@@ -197,6 +250,4 @@ catch(e){log.textContent='ERROR: '+e.message}
 busy=false;$('#f_go').disabled=false}
 $('#f_go').onclick=go;
 if(q.get('nombre')||q.get('ra')||q.get('horizons'))go();
-})();
-</script>
-</body></html>
+</script></body></html>
