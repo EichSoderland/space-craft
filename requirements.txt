@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+numpy
+astropy
+astroquery
+pyvo
+reproject
+pillow
+requests

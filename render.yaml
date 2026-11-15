@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: spherex-explorer
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/salud
+    envVars:
+      - key: WORKERS
+        value: "1"
+      - key: MAX_IMGS
+        value: "40"
